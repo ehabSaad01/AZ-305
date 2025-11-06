@@ -75,3 +75,39 @@ az role assignment create \
 --only-show-errors --output table
 
 echo "Template applied without role assignment."
+
+# --------------------------------------------
+# Alerts (templates, disabled by default)
+# --------------------------------------------
+# Purpose: Detect RBAC or tag changes via Log Analytics (AzureActivity).
+# How to use later:
+# 1) Replace placeholders: <SUBSCRIPTION_ID>, <WORKSPACE_RESOURCE_ID>, <ACTION_GROUP_RESOURCE_ID>
+# 2) Remove the leading '#' to enable.
+#
+# KQL used:
+# AzureActivity
+# | where TimeGenerated > ago(5m)
+# | where tolower(OperationNameValue) has_any ("microsoft.authorization/roleassignments", "microsoft.resources/tags/write")
+# | summarize Count = count()
+
+# az monitor scheduled-query create \
+#   --name "RBAC-Tag-Change-Alert" \
+#   --resource-group "rg-day01-governance-weu" \
+#   --scopes "<WORKSPACE_RESOURCE_ID>" \
+#   --description "Alerts when RBAC or Tag changes occur (last 5m)" \
+#   --condition "query='AzureActivity | where TimeGenerated > ago(5m) | where tolower(OperationNameValue) has_any (\"microsoft.authorization/roleassignments\", \"microsoft.resources/tags/write\") | summarize Count = count()'; time-aggregation='Count'; operator='GreaterThan'; threshold=0" \
+#   --window-size "PT5M" \
+#   --evaluation-frequency "PT5M" \
+#   --severity 2 \
+#   --action-groups "<ACTION_GROUP_RESOURCE_ID>" \
+#   --enabled false
+
+# Notes:
+# - <WORKSPACE_RESOURCE_ID> example:
+#   /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-day01-governance-weu/providers/Microsoft.OperationalInsights/workspaces/log-day01-gov-weu
+# - Create an Action Group first if needed:
+#   az monitor action-group create \
+#     --name "ag-day01-rbac-alerts" \
+#     --resource-group "rg-day01-governance-weu" \
+#     --short-name "day01rbac" \
+#     --action email Ehab "ehab.saad100985@gmail.com"

@@ -58,3 +58,46 @@ New-AzRoleAssignment `
 -Scope "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu" | Out-Null
 
 Write-Host "Template applied without role assignment."
+
+# --------------------------------------------
+# Alerts (templates, disabled by default)
+# --------------------------------------------
+# Purpose: Detect RBAC or tag changes via Log Analytics (AzureActivity).
+# How to use later:
+# 1) Replace placeholders: <SUBSCRIPTION_ID>, <WORKSPACE_RESOURCE_ID>, <ACTION_GROUP_RESOURCE_ID>
+# 2) Remove comment markers to enable.
+
+# $kql = @"
+# AzureActivity
+# | where TimeGenerated > ago(5m)
+# | where tolower(OperationNameValue) has_any ("microsoft.authorization/roleassignments", "microsoft.resources/tags/write")
+# | summarize Count = count()
+# "@
+#
+# New-AzScheduledQueryRule `
+#   -Name "RBAC-Tag-Change-Alert" `
+#   -ResourceGroupName "rg-day01-governance-weu" `
+#   -Location "westeurope" `
+#   -Description "Alerts when RBAC or Tag changes occur (last 5m)" `
+#   -Enabled:$false `
+#   -ActionGroupResourceId "<ACTION_GROUP_RESOURCE_ID>" `
+#   -Condition @(
+#       New-AzScheduledQueryRuleCondition `
+#         -Query $kql `
+#         -TimeAggregation "Count" `
+#         -Operator "GreaterThan" `
+#         -Threshold 0 `
+#         -WindowSize (New-TimeSpan -Minutes 5)
+#   ) `
+#   -Scope "<WORKSPACE_RESOURCE_ID>" `
+#   -Severity 2
+#
+# Notes:
+# - <WORKSPACE_RESOURCE_ID> example:
+#   /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-day01-governance-weu/providers/Microsoft.OperationalInsights/workspaces/log-day01-gov-weu
+# - Create Action Group (example):
+#   New-AzActionGroup `
+#     -Name "ag-day01-rbac-alerts" `
+#     -ResourceGroupName "rg-day01-governance-weu" `
+#     -ShortName "day01rbac" `
+#     -Receiver @(New-AzActionGroupReceiver -Name "Ehab" -EmailReceiver -EmailAddress "ehab.saad100985@gmail.com")
