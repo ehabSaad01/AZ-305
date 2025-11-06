@@ -1,34 +1,16 @@
-# Cloud Shell / local artifacts
-*.log
-*.tmp
-*.bak
-*.swp
-*.DS_Store
-
-# Credentials and sensitive files
-*.json
-*.key
-*.pem
-*.pfx
-*.cer
-*.pub
-
-# PowerShell / Bash history
-*.pshistory
-*.bash_history
-
-# OS generated
+# OS/Editor
+.DS_Store
 Thumbs.db
-desktop.ini
-
-# VS Code / IDE
 .vscode/
 .idea/
 
-# Terraform / Bicep / ARM
-*.tfstate
-*.tfstate.*
-*.tfvars
-terraform.tfvars
-*.bicep
-*.arm
+# PowerShell/Temp
+*.ps1xml
+*.tmp
+
+# Logs
+*.log
+
+# Zips/Artifacts
+*.zip
+*.tar.gz
