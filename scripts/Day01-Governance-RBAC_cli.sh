@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 Day01 – Governance & RBAC (Azure CLI). Long options only. Inline values.
-Replace <ASSIGNEE_OBJECT_ID> with the target principal ObjectId.
+Template build: no role assignment. Add later in a persistent tenant.
 
 set -euo pipefail
 
@@ -9,19 +9,18 @@ Subscription context
 
 az account set --subscription "6fa98ff9-39fd-4547-9fd4-e27fb267d465" --only-show-errors
 
-Resource Group
+RG
 
 az group create
 --name "rg-day01-governance-weu"
 --location "westeurope"
 --only-show-errors --output table
-
 az group update
 --name "rg-day01-governance-weu"
 --set "tags.Environment=Dev" "tags.Owner=Ehab.Saad" "tags.Project=AZ-305" "tags.CostCenter=GOV01"
 --only-show-errors --output table
 
-Log Analytics Workspace
+Log Analytics
 
 az monitor log-analytics workspace create
 --resource-group "rg-day01-governance-weu"
@@ -30,7 +29,7 @@ az monitor log-analytics workspace create
 --sku "PerGB2018"
 --only-show-errors --output table
 
-Export Activity Logs (subscription scope) → Workspace
+Export Activity Logs (subscription scope)
 
 az monitor diagnostic-settings create
 --name "diag-activitylogs-weu"
@@ -66,20 +65,13 @@ az role definition create
 }'
 --only-show-errors
 
-Role assignment (RG scope)
-
-az role assignment create
---assignee-object-id "<ASSIGNEE_OBJECT_ID>"
---assignee-principal-type "User"
---role "Reader-Storage-Limited"
---scope "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu"
+--- Role assignment intentionally omitted ---
+Example to add later:
+az role assignment create \
+--assignee-object-id "<OBJECT_ID>" \
+--assignee-principal-type "User" \
+--role "Reader-Storage-Limited" \
+--scope "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu" \
 --only-show-errors --output table
 
-Optional: generate an admin log entry
-
-az tag create
---resource-id "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu"
---tags "TestLog=VerifyActivityLog"
---only-show-errors --output table
-
-echo "Done. RG, workspace, diagnostics, custom role, role assignment."
+echo "Template applied without role assignment."

@@ -1,19 +1,17 @@
 #requires -Modules Az.Accounts, Az.Resources, Az.Monitor, Az.OperationalInsights
 <#
-Day01 – Governance & RBAC (PowerShell). Long-form parameters. Inline values.
-Replace <ASSIGNEE_OBJECT_ID> with the target principal ObjectId.
+Day01 – Governance & RBAC (PowerShell).
+Template build: no role assignment. Add later in a persistent tenant.
 #>
-
-Subscription context
 
 Set-AzContext -SubscriptionId "6fa98ff9-39fd-4547-9fd4-e27fb267d465"
 
-Resource Group
+RG
 
 New-AzResourceGroup -Name "rg-day01-governance-weu" -Location "westeurope" -Force | Out-Null
 Set-AzResourceGroup -Name "rg-day01-governance-weu" -Tag @{ Environment="Dev"; Owner="Ehab.Saad"; Project="AZ-305"; CostCenter="GOV01" } | Out-Null
 
-Log Analytics Workspace
+Log Analytics
 
 New-AzOperationalInsightsWorkspace -ResourceGroupName "rg-day01-governance-weu"
 -Name "log-day01-gov-weu" -Location "westeurope"
@@ -21,7 +19,7 @@ New-AzOperationalInsightsWorkspace -ResourceGroupName "rg-day01-governance-weu"
 -PublicNetworkAccessForQuery "Enabled" `
 -Force | Out-Null
 
-Export Activity Logs (subscription scope) → Workspace
+Export Activity Logs (subscription scope)
 
 Set-AzDiagnosticSetting -Name "diag-activitylogs-weu"
 -Scope "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465" -WorkspaceId "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu/providers/Microsoft.OperationalInsights/workspaces/log-day01-gov-weu"
@@ -52,14 +50,11 @@ New-AzRoleDefinition -InputFile ([System.IO.Path]::GetTempFileName() | ForEach-O
 Set-Content -Path $_ -Value $roleJson -Encoding UTF8; $_
 }) | Out-Null
 
-Role assignment (RG scope)
-
-New-AzRoleAssignment -ObjectId "<ASSIGNEE_OBJECT_ID>"
+--- Role assignment intentionally omitted ---
+Example to add later:
+New-AzRoleAssignment `
+-ObjectId "<OBJECT_ID>" `
 -RoleDefinitionName "Reader-Storage-Limited" `
 -Scope "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu" | Out-Null
 
-Optional: generate an admin log entry
-
-New-AzTag -ResourceId "/subscriptions/6fa98ff9-39fd-4547-9fd4-e27fb267d465/resourceGroups/rg-day01-governance-weu" -Tag @{ TestLog = "VerifyActivityLog" } | Out-Null
-
-Write-Host "Done. RG, workspace, diagnostics, custom role, role assignment."
+Write-Host "Template applied without role assignment."
