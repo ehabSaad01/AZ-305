@@ -1,0 +1,3 @@
+﻿# Bicep build output
+*.json
+!**/parameters*.json
