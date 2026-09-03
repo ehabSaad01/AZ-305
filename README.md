@@ -1,6 +1,6 @@
-# AZ-305 – Azure Solutions Architect Lab
+# Azure Cloud Architecture & Design Labs
 
-This repository contains hands-on architecture labs, Infrastructure as Code, and design artifacts aligned with Microsoft AZ-305 certification.
+This repository contains hands-on Azure architecture labs, Infrastructure as Code, and design artifacts created to develop practical skills for designing secure, scalable, resilient, and well-governed Azure solutions.
 
 ## Structure
 
@@ -23,7 +23,7 @@ docs/
 - Implement Hub-Spoke networking
 - Apply RBAC and Governance
 - Deploy production-grade infrastructure using IaC
-- Prepare for AZ-305 exam and real consulting work
+- Develop practical Azure architecture and cloud consulting skills
 
 ## Author
 
