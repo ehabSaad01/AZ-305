@@ -24,7 +24,3 @@ docs/
 - Apply RBAC and Governance
 - Deploy production-grade infrastructure using IaC
 - Develop practical Azure architecture and cloud consulting skills
-
-## Author
-
-Ehab Saad – Azure Cloud Engineer / Architect
